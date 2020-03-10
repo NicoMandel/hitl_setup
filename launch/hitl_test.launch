@@ -1,0 +1,51 @@
+<?xml version="1.0"?>
+<launch>
+    <!-- <arg name="x" default="1.3"/>
+    <arg name="y" default="0.58"/>
+    <arg name="z" default="0.5"/>
+    <arg name="R" default="0.0"/>
+    <arg name="P" default="0.0"/>
+    <arg name="Y" default="0.74"/> -->
+    <arg name="gui" default="true"/>
+    <arg name="verbose" default="true"/>
+    <arg name="world_name" default="$(find mavlink_sitl_gazebo)/worlds/iris_hitl_test.world"/>
+    <!-- <arg name="hitl" default="true"/> -->
+    <arg name="paused" default="true"/>
+    <arg name="use_sim_time" default="true"/>
+    <arg name="respawn_mavros" default="false"/>
+    <arg name="respawn_gazebo" default="false"/>
+
+    <!-- This is the standard coming from mavros.posix.sitl -->
+    <!-- <arg name="fcu_url" default="udp://:14540@localhost:14557"/> -->
+
+    <arg name="fcu_url" default="udp://:14540@localhost:14557"/>
+
+    <!-- Coming from the px4.launch file, which is deep in mavros 
+    57600 is the baud rate!-->
+    <!-- <arg name="fcu_url" default="/dev/ttyACM1:921600"/> serial:// -->
+    <!-- <arg name="model_name" default="iris_bottom_cam"/> -->
+    <!-- <arg unless="$(arg hitl)" name="model_name_hitl" value="$(arg model_name)"/> -->
+    <!-- <arg if="$(arg hitl)" name="model_name_hitl" value="$(arg model_name)_hitl"/> -->
+
+
+    <!-- 0. Gazebo launch file stuff -->
+    <include file="$(find gazebo_ros)/launch/empty_world.launch">
+        <arg name="paused" value="$(arg paused)"/>
+        <arg name="world_name" value="$(arg world_name)"/>
+        <arg name="use_sim_time" value="$(arg use_sim_time)"/>
+        <arg name="gui" value="$(arg gui)"/>
+        <arg name="recording" value="false"/>
+        <arg name="debug" value="false"/>
+        <arg name="verbose" value="$(arg verbose)"/>
+        <arg name="respawn_gazebo" value="$(arg respawn_gazebo)"/>
+    </include>
+
+    <!-- 1. Including the launch file for the Mavros -->
+    <include file="$(find mavros)/launch/px4.launch">
+        <arg name="gcs_url" value=""/>
+        <arg name="fcu_url" value="$(arg fcu_url)"/>
+        <arg name="respawn_mavros" value="$(arg respawn_mavros)"/>
+    </include>
+
+
+</launch>

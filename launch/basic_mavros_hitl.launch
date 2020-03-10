@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+<launch>
+    <arg name="x" default="0"/>
+    <arg name="y" default="0"/>
+    <arg name="z" default="0"/>
+    <arg name="R" default="0"/>
+    <arg name="P" default="0"/>
+    <arg name="Y" default="0"/>
+    <arg name="gui" default="true"/>
+    <arg name="vehicle" default="iris"/>
+    <arg name="verbose" default="true"/>
+    <arg name="world" default="$(find aruco_client)/worlds/hitl.world"/>
+    <arg name="hitl" default="true"/>
+    <!-- This is the standard coming from mavros.posix.sitl -->
+    <!-- <arg name="fcu_url" default="udp://:14540@localhost:14557"/> -->
+    <!-- Coming from the px4.launch file, which is deep in mavros 
+    57600 is the baud rate!-->
+    <arg name="fcu_url" default="/dev/ttyACM1:921600"/> <!--serial://-->
+    <arg name="model_name" default="iris_bottom_cam"/>
+    <arg unless="$(arg hitl)" name="model_name_hitl" value="$(arg model_name)"/>
+    <arg if="$(arg hitl)" name="model_name_hitl" value="$(arg model_name)_hitl"/>
+
+    <!-- 1. Including the launch file for the Mavros -->
+    <include file="$(find px4)/launch/mavros_posix_sitl.launch">
+        <arg name="x" value="$(arg x)"/>
+        <arg name="y" value="$(arg y)"/>
+        <arg name="z" value="$(arg z)"/>
+        <arg name="R" value="$(arg R)"/>
+        <arg name="P" value="$(arg P)"/>
+        <arg name="Y" value="$(arg Y)"/>
+        <arg name="gui" value="$(arg gui)"/>
+        <arg name="vehicle" value="$(arg vehicle)" />
+        <arg name="verbose" value="$(arg verbose)" />
+        <arg name="world" value="$(arg world)" />
+        <arg name="model_name" value="$(arg model_name_hitl)" />
+        <arg name="fcu_url" value="$(arg fcu_url)"/>
+    </include>
+</launch>
