@@ -1,23 +1,27 @@
 <?xml version="1.0"?>
 <launch>
-    <!-- <arg name="x" default="1.3"/>
+    <arg name="x" default="1.3"/>
     <arg name="y" default="0.58"/>
-    <arg name="z" default="0.5"/>
+    <arg name="z" default="0.2"/>
     <arg name="R" default="0.0"/>
     <arg name="P" default="0.0"/>
-    <arg name="Y" default="0.74"/> -->
+    <arg name="Y" default="0.74"/>
     <arg name="gui" default="true"/>
     <arg name="verbose" default="true"/>
-    <arg name="world_name" default="$(find mavlink_sitl_gazebo)/worlds/iris_hitl_test.world"/>
-    <!-- <arg name="hitl" default="true"/> -->
-    <arg name="paused" default="true"/>
+    <arg name="paused" default="false"/>
     <arg name="use_sim_time" default="true"/>
     <arg name="respawn_mavros" default="false"/>
     <arg name="respawn_gazebo" default="false"/>
 
-    <!-- This is the standard coming from mavros.posix.sitl -->
-    <!-- <arg name="fcu_url" default="udp://:14540@localhost:14557"/> -->
+    <arg name="world_name" default="$(find mavlink_sitl_gazebo)/worlds/iris_hitl.world"/>
+    <arg name="vehicle" default="iris"/>
+    <arg name="model_name" default="iris_bottom_cam_hitl"/>
+    <arg name="sdf" default="$(find mavlink_sitl_gazebo)/models/$(arg model_name)/$(arg model_name).sdf"/>
+<!-- 
+    <arg name="est" default="ekf2"/>
+    <env name="PX4_ESTIMATOR" value="$(arg est)" /> -->
 
+    <!-- This is the standard coming from mavros.posix.sitl -->
     <arg name="fcu_url" default="udp://:14540@localhost:14557"/>
 
     <!-- Coming from the px4.launch file, which is deep in mavros 
@@ -39,6 +43,9 @@
         <arg name="verbose" value="$(arg verbose)"/>
         <arg name="respawn_gazebo" value="$(arg respawn_gazebo)"/>
     </include>
+
+    <node name="$(anon vehicle_spawn)" pkg="gazebo_ros" type="spawn_model" output="screen" args="-sdf -file $(arg sdf) -model $(arg vehicle) -x $(arg x) -y $(arg y) -z $(arg z) -R $(arg R) -P $(arg P) -Y $(arg Y)"/>
+
 
     <!-- 1. Including the launch file for the Mavros -->
     <include file="$(find mavros)/launch/px4.launch">

@@ -4,21 +4,10 @@
     <arg name="gui" default="true"/>
     <arg name="verbose" default="true"/>
     <arg name="world_name" default="$(find aruco_client)/worlds/word2vec_empty.world"/>
-    <arg name="paused" default="true"/>
+    <arg name="paused" default="false"/>
     <arg name="use_sim_time" default="true"/>
     <arg name="respawn_gazebo" default="false"/>
 
-    <!-- 1. Launch a Gazebo File with the right settings -->
-    <include file="$(find gazebo_ros)/launch/empty_world.launch">
-        <arg name="paused" value="$(arg paused)"/>
-        <arg name="world_name" value="$(arg world_name)"/>
-        <arg name="use_sim_time" value="$(arg use_sim_time)"/>
-        <arg name="gui" value="$(arg gui)"/>
-        <arg name="recording" value="false"/>
-        <arg name="debug" value="false"/>
-        <arg name="verbose" value="$(arg verbose)"/>
-        <arg name="respawn_gazebo" value="$(arg respawn_gazebo)"/>
-    </include>
 
     <!-- 2. Load the hitl model of the iris -->
     <arg name="x" default="0"/>
@@ -33,10 +22,21 @@
     <node name="$(anon vehicle_spawn)" pkg="gazebo_ros" type="spawn_model" output="screen" args="-sdf -file $(arg sdf) -model $(arg vehicle) -x $(arg x) -y $(arg y) -z $(arg z) -R $(arg R) -P $(arg P) -Y $(arg Y)"/>
 
     <!-- 2.5 Px4 stuff I am not sure about -->
-    <arg name="est" default="ekf2"/>
-    <arg name="vehicle" default="iris"/>
-    <env name="PX4_SIM_MODEL" value="$(arg vehicle)" /> <!-- Maybe change this too? -->
-    <env name="PX4_ESTIMATOR" value="$(arg est)" />
+    <!-- <arg name="est" default="ekf2"/> -->
+    <!-- <env name="PX4_SIM_MODEL" value="$(arg vehicle)" /> Maybe change this too? -->
+    <!-- <env name="PX4_ESTIMATOR" value="$(arg est)" /> -->
+
+     <!-- 1. Launch a Gazebo File with the right settings -->
+    <include file="$(find gazebo_ros)/launch/empty_world.launch">
+        <arg name="paused" value="$(arg paused)"/>
+        <arg name="world_name" value="$(arg world_name)"/>
+        <arg name="use_sim_time" value="$(arg use_sim_time)"/>
+        <arg name="gui" value="$(arg gui)"/>
+        <arg name="recording" value="false"/>
+        <arg name="debug" value="false"/>
+        <arg name="verbose" value="$(arg verbose)"/>
+        <arg name="respawn_gazebo" value="$(arg respawn_gazebo)"/>
+    </include>
 
     <!-- 3. Load the Mavros node with the correct connection  -->
     <arg name="respawn_mavros" default="false"/>
@@ -47,8 +47,7 @@
         <arg name="respawn_mavros" value="$(arg respawn_mavros)"/>
     </include>
 
-
     <!-- 4. Load all the shwizzle for our system -->
-
+    <!-- <node name="offb_test" pkg="iris_control" type="offb_node"/> -->
 
 </launch>
