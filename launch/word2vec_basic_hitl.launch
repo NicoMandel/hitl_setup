@@ -8,7 +8,6 @@
     <arg name="use_sim_time" default="true"/>
     <arg name="respawn_gazebo" default="false"/>
 
-
     <!-- 2. Load the hitl model of the iris -->
     <arg name="x" default="0"/>
     <arg name="y" default="0"/>
@@ -26,7 +25,7 @@
     <!-- <env name="PX4_SIM_MODEL" value="$(arg vehicle)" /> Maybe change this too? -->
     <!-- <env name="PX4_ESTIMATOR" value="$(arg est)" /> -->
 
-     <!-- 1. Launch a Gazebo File with the right settings -->
+    <!-- 1. Launch a Gazebo File with the right settings -->
     <include file="$(find gazebo_ros)/launch/empty_world.launch">
         <arg name="paused" value="$(arg paused)"/>
         <arg name="world_name" value="$(arg world_name)"/>
@@ -49,5 +48,41 @@
 
     <!-- 4. Load all the shwizzle for our system -->
     <!-- <node name="offb_test" pkg="iris_control" type="offb_node"/> -->
+    <arg name="init_wps" default="$(find knowledge_server)/config/Initial_WPs.csv"/>
+    <arg name="sim_case" default="1"/>
+
+    <!-- 4.1. Marker Detection -->
+    <include file="$(find ml_detector)/launch/marker_detect.launch">
+        <arg name="image_topic" value="/$(arg vehicle)/usb_cam/image_raw"/>
+        <arg name="camera_info_topic" value="/$(arg vehicle)/usb_cam/camera_info"/>
+    </include>
+
+    <!-- 4.2 transform broadcaster -->
+    <node pkg="aruco_client" type="base_link_tf2_broadcaster" name="base_link_world"/>
+    <node pkg="tf2_ros" type="static_transform_publisher" name="camera_tf_broadcaster" args="0.0 0.0 -0.03 1.57 3.14 0.0 base_link robot_camera_link"/>
+
+    <!-- 4.3 the Node sending out the waypoints -->
+    <node pkg="aruco_client" type="wp_node" name="wp_node" output="screen"/>
+
+    <!-- 4.4 The Gazebo spawn file -->
+    <node pkg="knowledge_server" name="Spawn_node" type="gazebo_spawning.py" output="screen" args="$(arg sim_case)"/>
+
+    <!-- 4.5 An RVIZ file -->
+    <node type="rviz" name="rviz" pkg="rviz" args="-d $(find aruco_client)/config/rviz_config.rviz" />
+
+    <!-- 4.6 the Knowledgebase shwizzle -->
+    <group ns="knowledgebase">
+        <rosparam command="load" file="$(find knowledge_server)/config/parameters.yaml"/>
+        <node pkg="knowledge_server" name="detection" type="word2vec_detection_reduced.py" output="screen"/>
+        <node pkg="knowledge_server" name="tf_server" type="register_tf_server_reduced.py" output="screen"/>
+        <node pkg="knowledge_server" name="cam_tf" type="cam_points_transform.py" output="screen"/>
+        <node pkg="knowledge_server" name="map_server" type="word2vec_mapping.py" output="screen"/>
+        <node pkg="knowledge_server" name="navigator" type="word2vec_navigation.py" output="screen" args="$(arg init_wps)"/>
+        <node pkg="knowledge_server" name="Surveillance_Node" type="surveillance_node.py" output="screen"/>
+        <!-- <node pkg="knowledge_server" name="semantic_map" type="semantic_map.py" output="screen"/>
+        <node pkg="knowledge_server" name="decision_maker" type="decision.py" output="screen"/> -->
+    </group>
+
+
 
 </launch>
