@@ -65,7 +65,7 @@
     <node pkg="aruco_client" type="wp_node" name="wp_node" output="screen"/>
 
     <!-- 4.4 The Gazebo spawn file -->
-    <node pkg="knowledge_server" name="Spawn_node" type="gazebo_spawning.py" output="screen" args="$(arg sim_case)"/>
+    <node pkg="knowledge_server" name="$(anon marker_spawn)" type="gazebo_spawning.py" output="screen" args="$(arg sim_case)"/>
 
     <!-- 4.5 An RVIZ file -->
     <node type="rviz" name="rviz" pkg="rviz" args="-d $(find aruco_client)/config/rviz_config.rviz" />

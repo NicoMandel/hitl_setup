@@ -1,7 +1,12 @@
 <?xml version="1.0"?>
 <launch>
+
+    <!-- Setup Arguments for the machine -->
+    <!-- <arg name="machine" default="Nano"/>
+    <machine name="$(arg machine)" address="nano-wired" user="nico" env-loader="/home/nico/catkin_ws/devel/env_new.sh" timeout="10.0" default="false" /> -->
+
     <!-- 0. Setup arguments -->
-    <arg name="gui" default="true"/>
+    <arg name="gui" default="false"/>
     <arg name="verbose" default="true"/>
     <arg name="world_name" default="$(find aruco_client)/worlds/word2vec_empty.world"/>
     <arg name="paused" default="false"/>
@@ -19,11 +24,6 @@
     <arg name="model_name" default="iris_bottom_cam_hitl"/>
     <arg name="sdf" default="$(find mavlink_sitl_gazebo)/models/$(arg model_name)/$(arg model_name).sdf"/>
     <node name="$(anon vehicle_spawn)" pkg="gazebo_ros" type="spawn_model" output="screen" args="-sdf -file $(arg sdf) -model $(arg vehicle) -x $(arg x) -y $(arg y) -z $(arg z) -R $(arg R) -P $(arg P) -Y $(arg Y)"/>
-
-    <!-- 2.5 Px4 stuff I am not sure about -->
-    <!-- <arg name="est" default="ekf2"/> -->
-    <!-- <env name="PX4_SIM_MODEL" value="$(arg vehicle)" /> Maybe change this too? -->
-    <!-- <env name="PX4_ESTIMATOR" value="$(arg est)" /> -->
 
     <!-- 1. Launch a Gazebo File with the right settings -->
     <include file="$(find gazebo_ros)/launch/empty_world.launch">
@@ -65,7 +65,7 @@
     <node pkg="aruco_client" type="wp_node" name="wp_node" output="screen"/>
 
     <!-- 4.4 The Gazebo spawn file -->
-    <node pkg="knowledge_server" name="Spawn_node" type="gazebo_spawning.py" output="screen" args="$(arg sim_case)"/>
+    <node pkg="knowledge_server" name="$(anon marker_spawn)" type="gazebo_spawning.py" output="screen" args="$(arg sim_case)"/>
 
     <!-- 4.5 An RVIZ file -->
     <node type="rviz" name="rviz" pkg="rviz" args="-d $(find aruco_client)/config/rviz_config.rviz" />
@@ -78,9 +78,7 @@
         <node pkg="knowledge_server" name="cam_tf" type="cam_points_transform.py" output="screen"/>
         <node pkg="knowledge_server" name="map_server" type="word2vec_mapping.py" output="screen"/>
         <node pkg="knowledge_server" name="navigator" type="word2vec_navigation.py" output="screen" args="$(arg init_wps)"/>
-        <node pkg="knowledge_server" name="Surveillance_Node" type="surveillance_node.py" output="screen"/>
-        <!-- <node pkg="knowledge_server" name="semantic_map" type="semantic_map.py" output="screen"/>
-        <node pkg="knowledge_server" name="decision_maker" type="decision.py" output="screen"/> -->
+        <!-- <node pkg="knowledge_server" name="Surveillance_Node" type="surveillance_node.py" output="screen"/> -->
     </group>
 
 
