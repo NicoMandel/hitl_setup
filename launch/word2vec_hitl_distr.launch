@@ -2,8 +2,8 @@
 <launch>
 
     <!-- Setup Arguments for the machine -->
-    <!-- <arg name="machine" default="Nano"/>
-    <machine name="$(arg machine)" address="nano-wired" user="nico" env-loader="/home/nico/catkin_ws/devel/env_new.sh" timeout="10.0" default="false" /> -->
+    <arg name="machine" default="Nano"/>
+    <machine name="$(arg machine)" address="nano-wired" user="nico" env-loader="/home/nico/catkin_ws/devel/env_new.sh" timeout="10.0" default="false" />
 
     <!-- 0. Setup arguments -->
     <arg name="gui" default="false"/>
@@ -62,7 +62,7 @@
     <node pkg="tf2_ros" type="static_transform_publisher" name="camera_tf_broadcaster" args="0.0 0.0 -0.03 1.57 3.14 0.0 base_link robot_camera_link"/>
 
     <!-- 4.3 the Node sending out the waypoints -->
-    <node pkg="aruco_client" type="wp_node" name="wp_node" output="screen"/>
+    <node machine="$(arg machine)" pkg="aruco_client" type="wp_node" name="wp_node" output="screen"/>
 
     <!-- 4.4 The Gazebo spawn file -->
     <node pkg="knowledge_server" name="$(anon marker_spawn)" type="gazebo_spawning.py" output="screen" args="$(arg sim_case)"/>
