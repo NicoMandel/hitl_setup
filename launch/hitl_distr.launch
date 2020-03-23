@@ -1,5 +1,8 @@
 <?xml version="1.0"?>
 <launch>
+<arg name="machine" default="Nano"/>
+    <machine name="$(arg machine)" address="nano-wired" user="nico" env-loader="/home/nico/catkin_ws/devel/env_new.sh" timeout="10.0" default="false" />
+
     <arg name="x" default="1.3"/>
     <arg name="y" default="0.58"/>
     <arg name="z" default="0.1"/>
@@ -43,7 +46,7 @@
     </include>
 
     <!-- 2. Include the offb_test node to launch the UAV -->
-    <node name="offb_test" pkg="iris_control" type="offb_node"/>
+    <node machine="$(arg machine)" name="offb_test" pkg="iris_control" type="offb_node"/>
 
 
 
