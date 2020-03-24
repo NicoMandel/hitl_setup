@@ -1,7 +1,9 @@
 <?xml version="1.0"?>
 <launch>
 
-    <!-- 0. Setup arguments -->
+    <!-- Setup Arguments for the machine -->
+    <arg name="machine" default="Nano"/>
+    <machine name="$(arg machine)" address="nano-wired" user="nico" env-loader="/home/nico/catkin_ws/devel/env_catkin.sh" timeout="10.0" default="false" />
     <arg name="x" default="0"/>
     <arg name="y" default="0"/>
     <arg name="z" default="0.1"/>
@@ -13,28 +15,27 @@
     <arg name="paused" default="false"/>
     <arg name="use_sim_time" default="true"/>
     <arg name="respawn_gazebo" default="false"/>
-
     <arg name="world_name" default="$(find aruco_client)/worlds/word2vec_empty.world"/>
     <arg name="vehicle" default="iris"/>
     <arg name="model_name" default="iris_bottom_cam"/> <!-- Changed to be SITL compatible for this case  -->
     <arg name="sdf" default="$(find mavlink_sitl_gazebo)/models/$(arg model_name)/$(arg model_name).sdf"/>
-
     <arg name="fcu_url" default="udp://:14540@localhost:14557"/>
-    <arg name="pluginlists_yaml" value="$(find mavros)/launch/px4_pluginlists.yaml" />
-    <arg name="config_yaml" value="$(find mavros)/launch/px4_config.yaml" />
     <arg name="respawn_mavros" default="false"/>
     <arg name="gcs_url" default=""/>
     <arg name="tgt_system" default="1" />
     <arg name="tgt_component" default="1" />
     <arg name="log_output" default="screen" />
     <arg name="fcu_protocol" default="v2.0" />
-
-    <arg name="init_wps" default="$(find knowledge_server)/config/Initial_WPs.csv"/>
     <arg name="sim_case" default="1"/>
-
-    <!-- 4.1. Marker Detection -->
     <arg name="image_topic" value="/$(arg vehicle)/usb_cam/image_raw"/>
     <arg name="camera_info_topic" value="/$(arg vehicle)/usb_cam/camera_info"/>
+
+    <!-- ############ These need to be adapted -->
+    <!-- <arg name="pluginlists_yaml" value="$(find mavros)/launch/px4_pluginlists.yaml" /> -->
+    <!-- <arg name="config_yaml" value="$(find mavros)/launch/px4_config.yaml" /> -->
+    <arg name="init_wps" default="$(find knowledge_server)/config/Initial_WPs.csv"/>  
+    <!-- ################### -->
+
 
     <!-- STUFF FOR SITL -->
     <arg name="est" default="ekf2"/>
@@ -62,10 +63,8 @@
         <arg name="respawn_gazebo" value="$(arg respawn_gazebo)"/>
     </include>
 
-    <!-- 3. Load the Mavros node with the correct connection - top level mavros file  -->    
-
     <!-- 3.2 Stuff from node.launch in mavros package -->
-    <node pkg="mavros" type="mavros_node" name="mavros" required="$(eval not respawn_mavros)" clear_params="true" output="$(arg log_output)" respawn="$(arg respawn_mavros)">
+    <node machine="$(arg machine)" pkg="mavros" type="mavros_node" name="mavros" required="$(eval not respawn_mavros)" clear_params="true" output="$(arg log_output)" respawn="$(arg respawn_mavros)">
         <param name="fcu_url" value="$(arg fcu_url)" />
         <param name="gcs_url" value="$(arg gcs_url)" />
         <param name="target_system_id" value="$(arg tgt_system)" />
@@ -73,15 +72,15 @@
         <param name="fcu_protocol" value="$(arg fcu_protocol)" />
 
         <!-- load blacklist, config -->
-        <rosparam command="load" file="$(arg pluginlists_yaml)" />
-        <rosparam command="load" file="$(arg config_yaml)" />
+        <rosparam command="load" file="$(env CATKIN_BASE)/mavros/mavros/launch/px4_pluginlists.yaml" />
+        <rosparam command="load" file="$(env CATKIN_BASE)/mavros/mavros/launch/px4_config.yaml" />
     </node>
 
     <!-- 4. Load all the shwizzle for our system -->
     <!-- <node name="offb_test" pkg="iris_control" type="offb_node"/> -->
 
 
-    <node pkg="ml_detector" type="ml_detector_node" name="ml_detector" clear_params="true" output="screen">
+    <node machine="$(arg machine)" pkg="ml_detector" type="ml_detector_node" name="ml_detector" clear_params="true" output="screen">
         <!-- System Parameters -->
         <param name="system/publish_overlay" value="true" type="boolean"/>
         <param name="system/send_detailed_tag_info" value="true" type="boolean"/>
@@ -90,8 +89,8 @@
         <param name="system/camera_is_rectified" value="false" type="boolean"/>
 
         <!-- Detection Parameters /-->
-        <rosparam command="load" file="$(find ml_detector)/launch/detect_config.yaml"/>
-        <rosparam command="load" file="$(find ml_detector)/launch/board_config.yaml"/>
+        <rosparam command="load" file="$(env CATKIN_BASE)/marker_localization/ml_detector/launch/detect_config.yaml"/>
+        <rosparam command="load" file="$(env CATKIN_BASE)/marker_localization/ml_detector/launch/board_config.yaml"/>
 
         <!-- Marker Parameters -->
         <remap from="~detected_markers" to="/ml_landmarks/detected_markers"/>
