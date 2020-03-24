@@ -74,11 +74,6 @@
 
 
 
-
-
-
-
-
     <!-- 4. Load all the shwizzle for our system -->
     <!-- <node name="offb_test" pkg="iris_control" type="offb_node"/> -->
     <arg name="init_wps" default="$(find knowledge_server)/config/Initial_WPs.csv"/>
