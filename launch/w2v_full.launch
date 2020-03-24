@@ -1,25 +1,14 @@
 <?xml version="1.0"?>
 <launch>
 
-    <!-- Setup Arguments for the machine -->
-    <arg name="machine" default="Nano"/>
-    <machine name="$(arg machine)" address="nano-wired" user="nico" env-loader="/home/nico/catkin_ws/devel/env_new.sh" timeout="10.0" default="false" />
-
-    <!-- Setup Arguments for profiler -->
-    <param name="enable_statistics" value="true"/>
-    <node machine="$(arg machine)" pkg="rosprofiler" type="rosprofiler" name="rosprofiler_$(arg machine)" output="screen"/>
-    <node pkg="rosprofiler" type="rosprofiler" name="$(anon rosprofiler)" output="screen"/>
-    <node pkg="rosprofiler" type="rosgrapher" name="rosgrapher" output="screen"/>
-
     <!-- 0. Setup arguments -->
-    <arg name="gui" default="false"/>
+    <arg name="gui" default="true"/>
     <arg name="verbose" default="true"/>
     <arg name="world_name" default="$(find aruco_client)/worlds/word2vec_empty.world"/>
     <arg name="paused" default="false"/>
     <arg name="use_sim_time" default="true"/>
     <arg name="respawn_gazebo" default="false"/>
 
-    <!-- 2. Load the hitl model of the iris -->
     <arg name="x" default="0"/>
     <arg name="y" default="0"/>
     <arg name="z" default="0.1"/>
@@ -27,10 +16,12 @@
     <arg name="P" default="0"/>
     <arg name="Y" default="0"/>
     <arg name="vehicle" default="iris"/>
-    <arg name="model_name" default="iris_bottom_cam_hitl"/>
+    <arg name="model_name" default="iris_bottom_cam"/> <!-- Changed to be SITL compatible for this case  -->
     <arg name="sdf" default="$(find mavlink_sitl_gazebo)/models/$(arg model_name)/$(arg model_name).sdf"/>
-    <node name="$(anon vehicle_spawn)" pkg="gazebo_ros" type="spawn_model" output="screen" args="-sdf -file $(arg sdf) -model $(arg vehicle) -x $(arg x) -y $(arg y) -z $(arg z) -R $(arg R) -P $(arg P) -Y $(arg Y)"/>
 
+    <!-- 2. Load the hitl model of the iris -->
+    <node name="$(anon vehicle_spawn)" pkg="gazebo_ros" type="spawn_model" output="screen" args="-sdf -file $(arg sdf) -model $(arg vehicle) -x $(arg x) -y $(arg y) -z $(arg z) -R $(arg R) -P $(arg P) -Y $(arg Y)"/>
+    
     <!-- 1. Launch a Gazebo File with the right settings -->
     <include file="$(find gazebo_ros)/launch/empty_world.launch">
         <arg name="paused" value="$(arg paused)"/>
@@ -72,25 +63,41 @@
         <rosparam command="load" file="$(arg config_yaml)" />
     </node>
 
-
-
     <!-- 4. Load all the shwizzle for our system -->
     <!-- <node name="offb_test" pkg="iris_control" type="offb_node"/> -->
     <arg name="init_wps" default="$(find knowledge_server)/config/Initial_WPs.csv"/>
     <arg name="sim_case" default="1"/>
 
     <!-- 4.1. Marker Detection -->
-    <include file="$(find ml_detector)/launch/marker_detect.launch">
-        <arg name="image_topic" value="/$(arg vehicle)/usb_cam/image_raw"/>
-        <arg name="camera_info_topic" value="/$(arg vehicle)/usb_cam/camera_info"/>
-    </include>
+    <arg name="image_topic" value="/$(arg vehicle)/usb_cam/image_raw"/>
+    <arg name="camera_info_topic" value="/$(arg vehicle)/usb_cam/camera_info"/>
+
+    <node pkg="ml_detector" type="ml_detector_node" name="ml_detector" clear_params="true" output="screen">
+        <!-- System Parameters -->
+        <param name="system/publish_overlay" value="true" type="boolean"/>
+        <param name="system/send_detailed_tag_info" value="true" type="boolean"/>
+        <param name="system/show_rejected" value="false" type="boolean"/>
+        <param name="system/refine_strategy" value="true" type="boolean"/>
+        <param name="system/camera_is_rectified" value="false" type="boolean"/>
+
+        <!-- Detection Parameters /-->
+        <rosparam command="load" file="$(find ml_detector)/launch/detect_config.yaml"/>
+        <rosparam command="load" file="$(find ml_detector)/launch/board_config.yaml"/>
+
+        <!-- Marker Parameters -->
+        <remap from="~detected_markers" to="/ml_landmarks/detected_markers"/>
+
+        <!-- Image Parameters -->
+        <remap from="~camera_info" to="$(arg camera_info_topic)"/>
+        <remap from="~image_raw" to="$(arg image_topic)"/>
+    </node>
 
     <!-- 4.2 transform broadcaster -->
     <node pkg="aruco_client" type="base_link_tf2_broadcaster" name="base_link_world"/>
     <node pkg="tf2_ros" type="static_transform_publisher" name="camera_tf_broadcaster" args="0.0 0.0 -0.03 1.57 3.14 0.0 base_link robot_camera_link"/>
 
     <!-- 4.3 the Node sending out the waypoints -->
-    <node machine="$(arg machine)" pkg="aruco_client" type="wp_node" name="wp_node" output="screen"/>
+    <node pkg="aruco_client" type="wp_node" name="wp_node" output="screen"/>
 
     <!-- 4.4 The Gazebo spawn file -->
     <node pkg="knowledge_server" name="$(anon marker_spawn)" type="gazebo_spawning.py" output="screen" args="$(arg sim_case)"/>
@@ -105,8 +112,7 @@
         <node pkg="knowledge_server" name="tf_server" type="register_tf_server_reduced.py" output="screen"/>
         <node pkg="knowledge_server" name="cam_tf" type="cam_points_transform.py" output="screen"/>
         <node pkg="knowledge_server" name="map_server" type="word2vec_mapping.py" output="screen"/>
-        <node machine="$(arg machine)" pkg="knowledge_server" name="navigator" type="word2vec_navigation.py" output="screen" args="$(arg init_wps)"/>
-        <!-- <node pkg="knowledge_server" name="Surveillance_Node" type="surveillance_node.py" output="screen"/> -->
+        <node pkg="knowledge_server" name="navigator" type="word2vec_navigation.py" output="screen" args="$(arg init_wps)"/>
     </group>
 
 
