@@ -5,6 +5,12 @@
     <arg name="machine" default="Nano"/>
     <machine name="$(arg machine)" address="nano-wired" user="nico" env-loader="/home/nico/catkin_ws/devel/env_new.sh" timeout="10.0" default="false" />
 
+    <!-- Setup Arguments for profiler -->
+    <param name="enable_statistics" value="true"/>
+    <node machine="$(arg machine)" pkg="rosprofiler" type="rosprofiler" name="rosprofiler_$(arg machine)" output="screen"/>
+    <node pkg="rosprofiler" type="rosprofiler" name="$(anon rosprofiler)" output="screen"/>
+    <node pkg="rosprofiler" type="rosgrapher" name="rosgrapher" output="screen"/>
+
     <!-- 0. Setup arguments -->
     <arg name="gui" default="false"/>
     <arg name="verbose" default="true"/>
