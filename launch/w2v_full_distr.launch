@@ -19,7 +19,6 @@
     <arg name="vehicle" default="iris"/>
     <arg name="model_name" default="iris_bottom_cam"/> <!-- Changed to be SITL compatible for this case  -->
     <arg name="sdf" default="$(find mavlink_sitl_gazebo)/models/$(arg model_name)/$(arg model_name).sdf"/>
-    <arg name="fcu_url" default="udp://:14540@localhost:14557"/>
     <arg name="respawn_mavros" default="false"/>
     <arg name="gcs_url" default=""/>
     <arg name="tgt_system" default="1" />
@@ -34,6 +33,7 @@
     <!-- <arg name="pluginlists_yaml" value="$(find mavros)/launch/px4_pluginlists.yaml" /> -->
     <!-- <arg name="config_yaml" value="$(find mavros)/launch/px4_config.yaml" /> -->
     <arg name="init_wps" default="$(find knowledge_server)/config/Initial_WPs.csv"/>  
+    <arg name="fcu_url" default="udp://:14540@localhost:14557"/>
     <!-- ################### -->
 
 
@@ -72,8 +72,8 @@
         <param name="fcu_protocol" value="$(arg fcu_protocol)" />
 
         <!-- load blacklist, config -->
-        <rosparam command="load" file="$(env CATKIN_BASE)/mavros/mavros/launch/px4_pluginlists.yaml" />
-        <rosparam command="load" file="$(env CATKIN_BASE)/mavros/mavros/launch/px4_config.yaml" />
+        <rosparam command="load" file="$(optenv CATKIN_BASE /home/nicolas/catkin_ws/src)/mavros/mavros/launch/px4_pluginlists.yaml" />
+        <rosparam command="load" file="$(optenv CATKIN_BASE /home/nicolas/catkin_ws/src)/mavros/mavros/launch/px4_config.yaml" />
     </node>
 
     <!-- 4. Load all the shwizzle for our system -->
@@ -89,8 +89,8 @@
         <param name="system/camera_is_rectified" value="false" type="boolean"/>
 
         <!-- Detection Parameters /-->
-        <rosparam command="load" file="$(env CATKIN_BASE)/marker_localization/ml_detector/launch/detect_config.yaml"/>
-        <rosparam command="load" file="$(env CATKIN_BASE)/marker_localization/ml_detector/launch/board_config.yaml"/>
+        <rosparam command="load" file="$(optenv CATKIN_BASE /home/nicolas/catkin_ws/src)/marker_localization/ml_detector/launch/detect_config.yaml"/>
+        <rosparam command="load" file="$(optenv CATKIN_BASE /home/nicolas/catkin_ws/src)/marker_localization/ml_detector/launch/board_config.yaml"/>
 
         <!-- Marker Parameters -->
         <remap from="~detected_markers" to="/ml_landmarks/detected_markers"/>
