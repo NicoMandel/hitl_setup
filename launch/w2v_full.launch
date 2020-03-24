@@ -2,24 +2,52 @@
 <launch>
 
     <!-- 0. Setup arguments -->
-    <arg name="gui" default="true"/>
-    <arg name="verbose" default="true"/>
-    <arg name="world_name" default="$(find aruco_client)/worlds/word2vec_empty.world"/>
-    <arg name="paused" default="false"/>
-    <arg name="use_sim_time" default="true"/>
-    <arg name="respawn_gazebo" default="false"/>
-
     <arg name="x" default="0"/>
     <arg name="y" default="0"/>
     <arg name="z" default="0.1"/>
     <arg name="R" default="0"/>
     <arg name="P" default="0"/>
     <arg name="Y" default="0"/>
+    <arg name="gui" default="false"/>
+    <arg name="verbose" default="true"/>
+    <arg name="paused" default="false"/>
+    <arg name="use_sim_time" default="true"/>
+    <arg name="respawn_gazebo" default="false"/>
+
+    <arg name="world_name" default="$(find aruco_client)/worlds/word2vec_empty.world"/>
     <arg name="vehicle" default="iris"/>
     <arg name="model_name" default="iris_bottom_cam"/> <!-- Changed to be SITL compatible for this case  -->
     <arg name="sdf" default="$(find mavlink_sitl_gazebo)/models/$(arg model_name)/$(arg model_name).sdf"/>
 
-    <!-- 2. Load the hitl model of the iris -->
+    <arg name="fcu_url" default="udp://:14540@localhost:14557"/>
+    <arg name="pluginlists_yaml" value="$(find mavros)/launch/px4_pluginlists.yaml" />
+    <arg name="config_yaml" value="$(find mavros)/launch/px4_config.yaml" />
+    <arg name="respawn_mavros" default="false"/>
+    <arg name="gcs_url" default=""/>
+    <arg name="tgt_system" default="1" />
+    <arg name="tgt_component" default="1" />
+    <arg name="log_output" default="screen" />
+    <arg name="fcu_protocol" default="v2.0" />
+
+    <arg name="init_wps" default="$(find knowledge_server)/config/Initial_WPs.csv"/>
+    <arg name="sim_case" default="1"/>
+
+    <!-- 4.1. Marker Detection -->
+    <arg name="image_topic" value="/$(arg vehicle)/usb_cam/image_raw"/>
+    <arg name="camera_info_topic" value="/$(arg vehicle)/usb_cam/camera_info"/>
+
+    <!-- STUFF FOR SITL -->
+    <arg name="est" default="ekf2"/>
+    <env name="PX4_SIM_MODEL" value="$(arg vehicle)" /> <!-- Maybe change this too? -->
+    <env name="PX4_ESTIMATOR" value="$(arg est)" />
+    <arg name="interactive" default="true"/>
+    <!-- PX4 SITL -->
+    <arg unless="$(arg interactive)" name="px4_command_arg1" value="-d"/>
+    <arg     if="$(arg interactive)" name="px4_command_arg1" value=""/>
+    <node name="sitl" pkg="px4" type="px4" output="screen"
+        args="$(find px4)/ROMFS/px4fmu_common -s etc/init.d-posix/rcS $(arg px4_command_arg1)" required="true"/>
+
+    <!-- 2. Load the  model of the iris -->
     <node name="$(anon vehicle_spawn)" pkg="gazebo_ros" type="spawn_model" output="screen" args="-sdf -file $(arg sdf) -model $(arg vehicle) -x $(arg x) -y $(arg y) -z $(arg z) -R $(arg R) -P $(arg P) -Y $(arg Y)"/>
     
     <!-- 1. Launch a Gazebo File with the right settings -->
@@ -34,21 +62,7 @@
         <arg name="respawn_gazebo" value="$(arg respawn_gazebo)"/>
     </include>
 
-    <!-- 3. Load the Mavros node with the correct connection - top level mavros file  -->
-    <!-- Self defined parameters -->
-    <arg name="fcu_url" default="udp://:14540@localhost:14557"/>
-
-    <!-- FIX THESE - use env variable or something -->
-    <arg name="pluginlists_yaml" value="$(find mavros)/launch/px4_pluginlists.yaml" />
-    <arg name="config_yaml" value="$(find mavros)/launch/px4_config.yaml" />
-
-    <!-- Default parameters -->
-    <arg name="respawn_mavros" default="false"/>
-    <arg name="gcs_url" default=""/>
-    <arg name="tgt_system" default="1" />
-    <arg name="tgt_component" default="1" />
-    <arg name="log_output" default="screen" />
-    <arg name="fcu_protocol" default="v2.0" />
+    <!-- 3. Load the Mavros node with the correct connection - top level mavros file  -->    
 
     <!-- 3.2 Stuff from node.launch in mavros package -->
     <node pkg="mavros" type="mavros_node" name="mavros" required="$(eval not respawn_mavros)" clear_params="true" output="$(arg log_output)" respawn="$(arg respawn_mavros)">
@@ -65,12 +79,7 @@
 
     <!-- 4. Load all the shwizzle for our system -->
     <!-- <node name="offb_test" pkg="iris_control" type="offb_node"/> -->
-    <arg name="init_wps" default="$(find knowledge_server)/config/Initial_WPs.csv"/>
-    <arg name="sim_case" default="1"/>
 
-    <!-- 4.1. Marker Detection -->
-    <arg name="image_topic" value="/$(arg vehicle)/usb_cam/image_raw"/>
-    <arg name="camera_info_topic" value="/$(arg vehicle)/usb_cam/camera_info"/>
 
     <node pkg="ml_detector" type="ml_detector_node" name="ml_detector" clear_params="true" output="screen">
         <!-- System Parameters -->
@@ -103,7 +112,7 @@
     <node pkg="knowledge_server" name="$(anon marker_spawn)" type="gazebo_spawning.py" output="screen" args="$(arg sim_case)"/>
 
     <!-- 4.5 An RVIZ file -->
-    <!-- <node type="rviz" name="rviz" pkg="rviz" args="-d $(find aruco_client)/config/rviz_config.rviz" /> -->
+    <node type="rviz" name="rviz" pkg="rviz" args="-d $(find aruco_client)/config/rviz_config.rviz" />
 
     <!-- 4.6 the Knowledgebase shwizzle -->
     <group ns="knowledgebase">
