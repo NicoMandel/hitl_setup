@@ -15,9 +15,9 @@
     <arg name="verbose" default="true"/>
     <arg name="paused" default="false"/>
     <arg name="use_sim_time" default="true"/>
-    
     <arg name="respawn_gazebo" default="false"/>
     <arg name="world_name" default="$(find aruco_client)/worlds/word2vec_empty.world"/>
+    
     <arg name="vehicle" default="iris"/>
     <arg name="model_name" default="iris_bottom_cam"/> <!-- Changed to be SITL compatible for this case  -->
     <arg name="sdf" default="$(find mavlink_sitl_gazebo)/models/$(arg model_name)/$(arg model_name).sdf"/>

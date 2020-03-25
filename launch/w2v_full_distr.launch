@@ -4,6 +4,7 @@
     <!-- Setup Arguments for the machine -->
     <arg name="machine" default="Nano"/>
     <machine name="$(arg machine)" address="nano-wired" user="nico" env-loader="/home/nico/catkin_ws/devel/env_catkin.sh" timeout="10.0" default="false" />
+    
     <arg name="x" default="0"/>
     <arg name="y" default="0"/>
     <arg name="z" default="0.1"/>
@@ -16,6 +17,7 @@
     <arg name="use_sim_time" default="true"/>
     <arg name="respawn_gazebo" default="false"/>
     <arg name="world_name" default="$(find aruco_client)/worlds/word2vec_empty.world"/>
+    
     <arg name="vehicle" default="iris"/>
     <arg name="model_name" default="iris_bottom_cam"/> <!-- Changed to be SITL compatible for this case  -->
     <arg name="sdf" default="$(find mavlink_sitl_gazebo)/models/$(arg model_name)/$(arg model_name).sdf"/>
@@ -25,13 +27,13 @@
     <arg name="tgt_component" default="1" />
     <arg name="log_output" default="screen" />
     <arg name="fcu_protocol" default="v2.0" />
+    
     <arg name="sim_case" default="1"/>
     <arg name="image_topic" value="/$(arg vehicle)/usb_cam/image_raw"/>
     <arg name="camera_info_topic" value="/$(arg vehicle)/usb_cam/camera_info"/>
 
     <!-- 3.2 Stuff from node.launch in mavros package -->
-    <arg name="fcu_url" default="udp://:14540@notebook-wired:14557"/>
-    <!-- ################### -->
+    <arg name="fcu_url" default="udp://:14540@notebook-wired:14580"/>
     <node machine="$(arg machine)" pkg="mavros" type="mavros_node" name="mavros" required="$(eval not respawn_mavros)" clear_params="true" output="$(arg log_output)" respawn="$(arg respawn_mavros)">
         <param name="fcu_url" value="$(arg fcu_url)" />
         <param name="gcs_url" value="$(arg gcs_url)" />
@@ -75,10 +77,7 @@
     <!-- 2. Load the  model of the iris -->
     <node name="$(anon vehicle_spawn)" pkg="gazebo_ros" type="spawn_model" output="screen" args="-sdf -file $(arg sdf) -model $(arg vehicle) -x $(arg x) -y $(arg y) -z $(arg z) -R $(arg R) -P $(arg P) -Y $(arg Y)"/>
 
-
-
     <!-- 4. Load all the shwizzle for our system -->
-    <!-- <node name="offb_test" pkg="iris_control" type="offb_node"/> -->
     <node machine="$(arg machine)" pkg="ml_detector" type="ml_detector_node" name="ml_detector" clear_params="true" output="screen">
         <!-- System Parameters -->
         <param name="system/publish_overlay" value="true" type="boolean"/>
