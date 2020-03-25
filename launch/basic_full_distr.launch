@@ -15,6 +15,7 @@
     <arg name="verbose" default="true"/>
     <arg name="paused" default="false"/>
     <arg name="use_sim_time" default="true"/>
+    
     <arg name="respawn_gazebo" default="false"/>
     <arg name="world_name" default="$(find aruco_client)/worlds/word2vec_empty.world"/>
     <arg name="vehicle" default="iris"/>
@@ -28,7 +29,7 @@
     <arg name="fcu_protocol" default="v2.0" />
 
     <!-- 3.2 Stuff from node.launch in mavros package -->
-    <arg name="fcu_url" default="udp://:14540@notebook-wired:14557"/>
+    <arg name="fcu_url" default="udp://:14540@192.168.1.148:14557"/>
     
     <!-- STUFF FOR SITL -->
     <arg name="est" default="ekf2"/>
