@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <launch>
-<arg name="machine" default="Nano"/>
+    <arg name="machine" default="Nano"/>
     <machine name="$(arg machine)" address="nano-wired" user="nico" env-loader="/home/nico/catkin_ws/devel/env_new.sh" timeout="10.0" default="false" />
 
     <arg name="x" default="1.3"/>
