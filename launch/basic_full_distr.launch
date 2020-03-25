@@ -29,7 +29,7 @@
     <arg name="fcu_protocol" default="v2.0" />
 
     <!-- 3.2 Stuff from node.launch in mavros package -->
-    <arg name="fcu_url" default="udp://:14540@192.168.1.148:14557"/>
+    <arg name="fcu_url" default="udp://:14540@notebook-wired:14580"/>
     
     <!-- STUFF FOR SITL -->
     <arg name="est" default="ekf2"/>
