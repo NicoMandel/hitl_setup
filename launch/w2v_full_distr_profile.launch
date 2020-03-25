@@ -4,7 +4,8 @@
     <!-- Setup Arguments for the machine -->
     <arg name="machine" default="Nano"/>
     <machine name="$(arg machine)" address="nano-wired" user="nico" env-loader="/home/nico/catkin_ws/devel/env_catkin.sh" timeout="10.0" default="false" />
-    
+    <param name="enable_statistics" value="true"/>
+
     <arg name="x" default="0"/>
     <arg name="y" default="0"/>
     <arg name="z" default="0.1"/>
@@ -122,5 +123,9 @@
     </group>
 
 
+    <!-- Profiling Nodes -->
+    <node machine="$(arg machine)" pkg="rosprofiler" type="rosprofiler" name="rosprofiler_$(arg machine)" output="screen"/>
+    <node pkg="rosprofiler" type="rosprofiler" name="$(anon rosprofiler)" output="screen"/>
+    <node pkg="rosprofiler" type="rosgrapher" name="rosgrapher" output="screen"/>
 
 </launch>
