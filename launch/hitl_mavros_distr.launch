@@ -30,7 +30,8 @@
     
     <!-- 3.2 Stuff from node.launch in mavros package -->
     <!-- <arg name="fcu_url" default="udp://:14540@notebook-wired:14557"/> -->
-    <!-- Can I change this port to icnlude  -->
+
+    <!-- Can I change this port to icnlude udp -->
     <arg name="fcu_url" default="/dev/ttyTHS1:921600"/> <!-- To work on the Jetson nano  -->
 
 
